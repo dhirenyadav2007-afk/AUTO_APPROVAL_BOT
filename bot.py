@@ -2,16 +2,19 @@
 
 import asyncio
 import logging
+import os
+from threading import Thread
+from flask import Flask
 
 from telegram import Bot
-from telegram.constants import ParseMode
+from telegram.constants import ParseMode, ChatAction
 from telegram.ext import Application
 
 from config import BOT_TOKEN, OWNER_ID
 from plugins.approver import setup_approver
 from plugins.callbacks import setup_callbacks
-from plugins.__init__ import (setup_start, setup_commands)
-from telegram.constants import ChatAction, ParseMode
+from plugins.__init__ import setup_start, setup_commands
+
 from helper.database import MongoDB
 from config import DB_URL, DB_NAME
 
@@ -20,19 +23,18 @@ from config import DB_URL, DB_NAME
 # ✅ FLASK + THREAD (Render Support)
 # ──────────────────────────────
 
-import os
-from threading import Thread
-from flask import Flask
-
-# ---------- FLASK ----------
 app = Flask(__name__)
 
 @app.route("/")
 def home():
     return "Bot is running!", 200
 
+
 def run_flask():
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))
+    app.run(
+        host="0.0.0.0",
+        port=int(os.environ.get("PORT", 10000))
+    )
 
 
 # ──────────────────────────────
@@ -107,7 +109,7 @@ async def main() -> None:
     Only bootstraps application + loads modules.
     """
 
-    # ✅ Start Flask Server in Background
+    # ✅ Start Flask Server in Background (Render Needs Open Port)
     Thread(target=run_flask, daemon=True).start()
 
     logger.info("Initializing BotifyX Core...")
@@ -143,16 +145,11 @@ async def main() -> None:
           >>> System Online & Stable <<<
 """)
 
-    # Start Polling (Async Safe Mode)
-    await application.initialize()
-    await application.start()
-    await application.updater.start_polling(
+    # ✅ Correct Polling Method for PTB v20+
+    await application.run_polling(
         drop_pending_updates=True,
         allowed_updates=["message", "chat_join_request", "callback_query"],
     )
-
-    # Keep Bot Running Forever
-    await asyncio.Event().wait()
 
 
 # ──────────────────────────────
