@@ -103,7 +103,7 @@ async def notify_restart(bot: Bot) -> None:
 # Main Entrypoint
 # ──────────────────────────────
 
-async def main() -> None:
+def main() -> None:
     """
     Professional bot entrypoint.
     Only bootstraps application + loads modules.
@@ -127,8 +127,8 @@ async def main() -> None:
     setup_start(application)
     setup_commands(application)
 
-    # Notify Owner
-    await notify_restart(application.bot)
+    # Notify Owner (Async Safe)
+    application.post_init = lambda app: notify_restart(app.bot)
 
     # Startup Banner
     logger.info("BotifyX successfully started.")
@@ -146,7 +146,7 @@ async def main() -> None:
 """)
 
     # ✅ Correct Polling Method for PTB v20+
-    await application.run_polling(
+    application.run_polling(
         drop_pending_updates=True,
         allowed_updates=["message", "chat_join_request", "callback_query"],
     )
@@ -158,6 +158,6 @@ async def main() -> None:
 
 if __name__ == "__main__":
     try:
-        asyncio.run(main())
+        main()
     except KeyboardInterrupt:
         logger.info("Bot stopped manually.")
