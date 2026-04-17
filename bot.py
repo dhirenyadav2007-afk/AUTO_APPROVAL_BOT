@@ -3,8 +3,8 @@
 import asyncio
 import logging
 import os
-from threading import Thread
-from flask import Flask
+#from threading import Thread
+#from flask import Flask
 
 from telegram import Bot
 from telegram.constants import ParseMode, ChatAction
@@ -23,18 +23,18 @@ from config import DB_URL, DB_NAME
 # ✅ FLASK + THREAD (Render Support)
 # ──────────────────────────────
 
-app = Flask(__name__)
+#app = Flask(__name__)
 
-@app.route("/")
-def home():
-    return "Bot is running!", 200
+#@app.route("/")
+#def home():
+#    return "Bot is running!", 200
 
 
-def run_flask():
-    app.run(
-        host="0.0.0.0",
-        port=int(os.environ.get("PORT", 10000))
-    )
+#def run_flask():
+#    app.run(
+#        host="0.0.0.0",
+#        port=int(os.environ.get("PORT", 10000))
+#    )
 
 
 # ──────────────────────────────
@@ -110,7 +110,7 @@ def main() -> None:
     """
 
     # ✅ Start Flask Server in Background (Render Needs Open Port)
-    Thread(target=run_flask, daemon=True).start()
+    #Thread(target=run_flask, daemon=True).start()
 
     logger.info("Initializing BotifyX Core...")
 
